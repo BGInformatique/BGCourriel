@@ -1,0 +1,20 @@
+[Unit]
+Description=Courriel — relève des boîtes toutes les dix minutes
+
+[Timer]
+# Une relève au démarrage, puis toutes les dix minutes. Dix minutes parce que
+# Thunderbird n'écrit son index sur le disque que de temps à autre : relever
+# toutes les minutes ne donnerait pas des chiffres plus frais, seulement plus
+# d'écritures Firestore facturées pour le même contenu.
+OnBootSec=2min
+OnUnitActiveSec=10min
+
+# Sans cela, toutes les minuteries du même intervalle partent à la même seconde.
+AccuracySec=30s
+
+# Une relève manquée (machine éteinte) est rattrapée au réveil : le journal des
+# tendances a alors un point de plus, et la courbe ne saute pas la journée.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

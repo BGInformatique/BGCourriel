@@ -1,0 +1,46 @@
+[Unit]
+Description=Courriel — relève des boîtes de courriel vers Firestore
+# ATTENTION AUX GUILLEMETS SI VOTRE CHEMIN D'INSTALLATION CONTIENT UNE
+# ESPACE. Les deux erreurs possibles, vues en production sur un chemin qui
+# en contenait une :
+#
+#   Les réglages qui prennent une LISTE de chemins — ReadWritePaths,
+#   Documentation — sont découpés sur les espaces. Sans guillemets, un
+#   chemin « /home/x/Mon Dossier » devient deux chemins ; le premier
+#   n'existe pas et le service meurt en 226/NAMESPACE, « Failed to set up
+#   mount namespacing », sans que le message nomme jamais la cause réelle.
+#
+#   Les réglages qui prennent UN SEUL chemin — WorkingDirectory — le prennent
+#   littéralement, espaces comprises. Des guillemets en font alors partie du
+#   chemin, et systemd refuse l'unité : « path is not absolute ».
+#
+# D'où : Documentation et ReadWritePaths entre guillemets, WorkingDirectory nu.
+Documentation="file://{{CHEMIN_INSTALLATION}}/LISEZ-MOI.md"
+# Une relève sans réseau ne peut pas pousser. Inutile de la lancer avant.
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory={{CHEMIN_INSTALLATION}}
+ExecStart=/usr/bin/python3 -m bg_courriel pousser --silencieux
+
+# Une relève qui traîne est une relève en panne : quelques centaines de
+# courriels se lisent en une fraction de seconde, et l'envoi dépasse
+# rarement deux secondes. Deux minutes laissent tout le jeu voulu à un
+# réseau lent sans jamais laisser un processus bloqué.
+TimeoutStartSec=120
+
+# La relève n'a besoin d'écrire que dans son propre dossier (journal des
+# tendances) — le profil Thunderbird est lu, jamais modifié, et ce durcissement
+# le garantit par le noyau au lieu de le promettre par le code.
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths="{{CHEMIN_INSTALLATION}}/etat"
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=default.target
