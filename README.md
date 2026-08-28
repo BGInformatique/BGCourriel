@@ -1,5 +1,9 @@
 # Courriel — tableau de bord des boîtes de courriel
 
+> *Un des quatre modèles neutres du [portfolio public de BG Informatique](https://bginformatique.ca) — service informatique pour PME et particuliers, Saint-Jérôme et Laurentides.*
+>
+> Le détail qui vaut la peine d'être lu : l'outil ignore le mbox de Thunderbird et lit son index Mork (`.msf`) à la place — pas par choix de performance, mais parce que sur une boîte IMAP l'octet « lu » du mbox ne se met jamais à jour. Mesuré en production : une boîte pleine de non-lus s'annonçait entièrement lue. L'autotest, lui, ne contient aucun chiffre codé en dur — il compare son propre compte aux compteurs que Thunderbird tient déjà, pour rester valide même quand la boîte change. Et il ne touche jamais un courriel : lecture seule, aucun mot de passe, aucune connexion serveur.
+
 **MODÈLE NEUTRE.** Voir `PARAMETRES-A-CONFIGURER.md` avant tout déploiement —
 ce fichier liste tout ce qui doit être adapté à votre entreprise avant de
 lancer l'outil.
