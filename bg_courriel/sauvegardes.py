@@ -1347,7 +1347,10 @@ def enrichir(courriels, chemins_mbox, maintenant=None):
         chemin = chemins_mbox.get((courriel["compte"], courriel["dossier"]))
         if not chemin:
             continue
-        corps_texte = corps.corps_complet(chemin, courriel.get("decalage_mbox", 0))
+        decalage = courriel.get("decalage_mbox")
+        if decalage is None:
+            continue
+        corps_texte = corps.corps_complet(chemin, decalage)
         if not corps_texte:
             continue
         mail = RawMail(

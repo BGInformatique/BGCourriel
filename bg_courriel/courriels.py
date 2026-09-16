@@ -130,7 +130,15 @@ def convertir(cellules, compte, dossier):
         # Décalage dans le mbox (voir corps.py) : ne sert qu'aux courriels
         # repérés « sauvegarde », pour lire leur corps complet à la demande
         # sans jamais relire tout le mbox.
-        "decalage_mbox": _entier_decimal(cellules.get("storeToken")),
+        #
+        # storeToken est ABSENT sur certains messages (par ex. reçus par IMAP
+        # Gmail) — _entier_decimal(None) rendait 0 par défaut, confondu avec
+        # un vrai décalage 0. La lecture du corps partait alors du tout début
+        # du mbox et rendait le corps d'UN AUTRE courriel, sans aucune erreur.
+        # None distingue maintenant « absent » de « 0 » ; voir
+        # sauvegardes.enrichir, qui doit vérifier avant d'appeler corps_complet.
+        "decalage_mbox": (_entier_decimal(cellules["storeToken"])
+                          if cellules.get("storeToken") is not None else None),
         "apercu": (cellules.get("preview") or "").strip(),
         "message_id": (cellules.get("message-id") or "").strip(),
         "fil": (cellules.get("msgThreadId") or "").strip(),
